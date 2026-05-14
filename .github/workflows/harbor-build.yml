@@ -1,0 +1,30 @@
+name: Build and Push to Harbor
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: 
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Login to Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: harbor:5000
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # Here is where we match your Docker push command!
+          tags: harbor:5000/demoproject/nkp-frontend:latest
