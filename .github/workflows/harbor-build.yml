@@ -1,30 +1,42 @@
-name: Build and Push to Harbor
+name: Build and Push to GHCR
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    # These permissions are required to push to GHCR
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Login to Harbor
+      # This step converts "SrishneetKaur/..." to lowercase
+      - name: Lowercase Repository Name
+        id: repo_name
+        run: |
+          echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: harbor.eng.nutanix.com
-          username: ${{ secrets.HARBOR_USERNAME }}
-          password: ${{ secrets.HARBOR_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          # This token is automatically provided by GitHub!
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          # Here is where we match your Docker push command!
-          tags: harbor.eng.nutanix.com/demoproject/nkp-frontend:latest
+          # We use the lowercase variable we created above
+          tags: ghcr.io/${{ env.REPO_LC }}/nkp-frontend:latest
