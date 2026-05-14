@@ -36,7 +36,7 @@ jobs:
       - name: Build and Push Image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./apps/frontend
           push: true
           # We use the lowercase variable we created above
           tags: ghcr.io/${{ env.REPO_LC }}/nkp-frontend:latest
