@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nkp-frontend-deployment
+  labels:
+    app: nkp-frontend
+spec:
+  replicas: 2  # Runs 2 copies of your website
+  selector:
+    matchLabels:
+      app: nkp-frontend
+  template:
+    metadata:
+      labels:
+        app: nkp-frontend
+    spec:
+      containers:
+      - name: frontend-app
+        # Pulls your image from Harbor
+        image: nkp-demo-ssc-3/nkp-frontend
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nkp-frontend-service
+spec:
+  type: LoadBalancer # Gives you an IP address to view the site
+  selector:
+    app: nkp-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
